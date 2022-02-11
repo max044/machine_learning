@@ -4,24 +4,15 @@ from sklearn.datasets import make_regression
 import matplotlib.pyplot as plt
 
 x, y = make_regression(n_samples=100, n_features=1, noise=10)
-plt.scatter(x, y)
 
-# print(x.shape)
 y = y.reshape(y.shape[0], 1)
-# print(y.shape)
 
 X = np.hstack((x, np.ones(x.shape)))
 
 theta = np.random.randn(2, 1)
-# print(theta)
 
 def model(X, theta):
     return X.dot(theta)
-
-
-# plt.plot(model(X, theta), c='r')
-# plt.show()
-
 
 def cost_function(X, y, theta):
     m = len(y)
@@ -32,9 +23,28 @@ def grad(X, y, theta):
     return 1/m * X.T.dot(model(X, theta) - y)
 
 def gradient_descent(X, y, theta, learning_rate, n_iterations):
-
+    cost_history = np.zeros(n_iterations)
     for i in range(0, n_iterations):
         theta = theta - learning_rate * grad(X, y, theta)
-    return theta
+        cost_history[i] = cost_function(X, y, theta)
+    return theta, cost_history
 
-theta_final = gradient_descent(X, y, theta, learning_rate=0.001, n_iterations=1000)
+theta_final, cost_history = gradient_descent(X, y, theta, learning_rate=0.01, n_iterations=1000)
+
+
+
+def coef_determination(y, pred):
+    u = ((y - pred)**2).sum()
+    v = ((y - y.mean())**2).sum()
+    return 1 - u/v
+
+
+print(theta_final)
+predictions = model(X, theta_final)
+plt.scatter(x, y)
+plt.plot(x, predictions, c='r')
+plt.show()
+plt.plot(range(1000), cost_history)
+plt.show()
+
+print(coef_determination(y, predictions))
